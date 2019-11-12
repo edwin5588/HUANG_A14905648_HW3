@@ -2,7 +2,7 @@
 
 const JSONFileName = 'assets/springfield_converted.json';
 
-var area_chart = Highcharts.chart('container', {
+var area_chart = {
   chart: {
     type: 'area'
   },
@@ -44,7 +44,8 @@ var area_chart = Highcharts.chart('container', {
     }
   },
   series: []
-});
+};
+
 
 // global data-structure to hold the energy breakup
 var globalEnergyData = {
@@ -99,8 +100,8 @@ function onSuccessCb(jsonData) {
         return elm['type'] === 'power' && !(elm['id'] === "Springfield.fuel_tech.rooftop_solar.power");
     }).map(function(elm) {
         return {
-          data: elm['history']['data'],
-          name: elm['id']
+          name: elm['id'],
+          data: elm['history']['data']
         };
     });
 
@@ -129,6 +130,7 @@ function onSuccessCb(jsonData) {
 
     //pushing data onto the charts
     area_chart.series = energyData;
+    Highcharts.chart('container', area_chart)
 
     zingchart.exec('sharedGrid', 'setseriesdata', {
       graphid: 1,
