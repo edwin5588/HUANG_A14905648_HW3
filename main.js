@@ -1,6 +1,6 @@
 'use strict';
 
-const JSONFileName = 'assets/springfield_converted.json';
+const JSONFileName = 'assets/sample_data.json';
 
 let sharedConfig = {
   layout: "3x1",
@@ -154,7 +154,7 @@ var globalEnergyData = {
 // function to do deep-copy on the global data structure
 function updateGlobalEnergyData(data) {
   globalEnergyData['values'] = [];
-  for (var idx = 0; idx < data[1]['history']['data'].length; idx ++) {
+  for (var idx = 0; idx < data[0]['values'].length; idx ++) {
     var energyBreakup = data.map(elm => {return elm['values'][idx]});
     globalEnergyData['values'].push(energyBreakup);
   }
@@ -265,7 +265,7 @@ function doMain() {
         data: pieConfig
     });
     zingchart.bind('sharedGrid', 'mouseover', onMouseoverChart);
-    fetchJSONFile('assets/springfield_converted.json', onSuccessCb);
+    fetchJSONFile('assets/sample_data.json', onSuccessCb);
 }
 
 document.onload = doMain();
