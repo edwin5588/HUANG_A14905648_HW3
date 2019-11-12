@@ -1,164 +1,65 @@
 'use strict';
 
-const JSONFileName = 'assets/sample_data.json';
+const JSONFileName = 'assets/springfield_converted.json';
 
-let sharedConfig = {
-  layout: "3x1",
-  graphset : [
-    {
-      // config for the energy stacked area graph
-      type: 'area',
-      title: {
-        text: 'Generation MW',
-        fontSize: 18,
-      },
-      "crosshair-x":{
-        shared: true
-      },
-      plot: {
-        tooltip:{
-          visible: false
-        },
-        aspect: "spline",
-        stacked: true
-      },
-      plotarea: {
-        margin: "dynamic"
-      },
-      "scale-x": {
-          "min-value": 1571579700000,
-          "step": "30minute",
-          "transform": {
-              "type": "date",
-              "all": "%m/%d/%Y<br>%h:%i:%s:%q %A"
-          },
-          "item": {
-              "font-size": 9
-          }
-      },
-      "utc": true,
-      "timezone": 0,
-      'scale-y': {
-          values: "0:80:10",
-          format: "%v",
-          guide: {
-            'line-style': "dotted"
-          }
-        },
-      series: []
-    },
-    {
-      // config for the price line graph
-      type: "line",
-      title: {
-        text: 'Price $/MWh',
-        fontSize: 18,
-      },
-      "crosshair-x":{
-        shared: true
-      },
-      plot: {
-        tooltip:{
-          visible: false
-        }
-      },
-      plotarea: {
-      },
-      "scale-x": {
-          "min-value": 1571579700000,
-          "step": "30minute",
-          "transform": {
-              "type": "date",
-              "all": "%m/%d/%Y<br>%h:%i:%s:%q %A"
-          },
-          "item": {
-              "font-size": 9
-          }
-      },
-      "utc": true,
-      "timezone": 0,
-      'scale-y': {
-        values: "0:30",
-        format: "%v",
-        guide: {
-          'line-style': "dotted"
-        }
-      },
-      series: []
-    },
-    {
-      // config for the temperature line graph
-      type: "line",
-      title: {
-        text: 'Temperature degreesF',
-        fontSize: 18,
-      },
-      "crosshair-x":{
-        shared: true
-      },
-      plot: {
-        tooltip:{
-          visible: false
-        }
-      },
-      plotarea: {
-      },
-      "scale-x": {
-          "min-value": 1571579700000,
-          "step": "30minute",
-          "transform": {
-              "type": "date",
-              "all": "%m/%d/%Y<br>%h:%i:%s:%q %A"
-          },
-          "item": {
-              "font-size": 9
-          }
-      },
-      "utc": true,
-      "timezone": 0,
-      'scale-y': {
-        values: "0:80:20",
-        format: "%v",
-        guide: {
-          'line-style': "dotted"
-        }
-      },
-      series: []
-    }
-  ]
-}
-
-
-let pieConfig = {
-  type: "pie",
-  plot: {
-      valueBox: {
-          text: '%t\n%npv%'
-      }
+var area_chart = Highcharts.chart('container', {
+  chart: {
+    type: 'area'
   },
   title: {
-      text: 'Energy Breakup'
+    text: 'Historic and Estimated Worldwide Population Growth by Region'
   },
-  plotarea: {
-      margin: "0 0 0 0"
+  subtitle: {
+    text: 'Source: Wikipedia.org'
+  },
+  xAxis: {
+    tickmarkPlacement: 'on',
+    title: {
+      enabled: false
+    }
+  },
+  yAxis: {
+    title: {
+      text: 'Billions'
+    },
+    labels: {
+      formatter: function () {
+        return this.value / 1000;
+      }
+    }
+  },
+  tooltip: {
+    split: true,
+    valueSuffix: ' millions'
+  },
+  plotOptions: {
+    area: {
+      stacking: 'normal',
+      lineColor: '#666666',
+      lineWidth: 1,
+      marker: {
+        lineWidth: 1,
+        lineColor: '#666666'
+      }
+    }
   },
   series: []
-};
+});
 
 // global data-structure to hold the energy breakup
 var globalEnergyData = {
-  keys: [],
-  values: []
+  name: [],
+  data: []
 };
 
 // function to do deep-copy on the global data structure
 function updateGlobalEnergyData(data) {
-  globalEnergyData['values'] = [];
-  for (var idx = 0; idx < data[0]['values'].length; idx ++) {
-    var energyBreakup = data.map(elm => {return elm['values'][idx]});
-    globalEnergyData['values'].push(energyBreakup);
+  globalEnergyData['data'] = [];
+  for (var idx = 0; idx < data[0]['data'].length; idx ++) {
+    var energyBreakup = data.map(elm => {return elm['data'][idx]});
+    globalEnergyData['data'].push(energyBreakup);
   }
-  globalEnergyData['keys'] = data.map(elm => elm['text']);
+  globalEnergyData['keys'] = data.map(elm => elm['name']);
 }
 
 // this method reacts only onmouseover on any of the nodes in the shared graphs
@@ -178,7 +79,7 @@ function renderPieChart(nodeId) {
   var pieDataSet = globalEnergyData['keys'].map(function(elm, idx) {
     return {
       text: elm.split('.')[elm.split('.').length - 1],
-      values: [globalEnergyData['values'][nodeId][idx]]
+      values: [globalEnergyData['data'][nodeId][idx]]
     }
   });
   // console.log(pieDataSet);
@@ -187,24 +88,32 @@ function renderPieChart(nodeId) {
   });
 }
 
+
+console.log('test');
+
 // this function is responsible for plotting the energy on
 // successfully loading the JSON data
 // It also plots the pie chart for nodeId=0
 function onSuccessCb(jsonData) {
     var energyData = jsonData.filter(function(elm) {
-        return elm['type'] === 'energy';
+        return elm['type'] === 'power' && !(elm['id'] === "Springfield.fuel_tech.rooftop_solar.power");
     }).map(function(elm) {
         return {
-          values: elm['data'],
-          text: elm['id']
+          data: elm['history']['data'],
+          name: elm['id']
         };
     });
+
+    console.debug("this is the energyData")
+    console.debug(energyData);
     updateGlobalEnergyData(energyData);
+
+
     var priceData = jsonData.filter(function(elm) {
         return elm['type'] === 'price';
     }).map(function(elm) {
         return {
-          values: elm['data'],
+          values: elm['history']['data'],
           text: elm['id']
         };
     });
@@ -212,14 +121,15 @@ function onSuccessCb(jsonData) {
         return elm['type'] === 'temperature';
     }).map(function(elm) {
         return {
-          values: elm['data'],
+          values: elm['history']['data'],
           text: elm['id']
         };
     });
-    zingchart.exec('sharedGrid', 'setseriesdata', {
-      graphid: 0,
-      data : energyData
-    });
+
+
+    //pushing data onto the charts
+    area_chart.series = energyData;
+
     zingchart.exec('sharedGrid', 'setseriesdata', {
       graphid: 1,
       data : priceData
@@ -256,16 +166,7 @@ function fetchJSONFile(filePath, callbackFunc) {
 
 // The entrypoint of the script execution
 function doMain() {
-    zingchart.render({
-        id: 'sharedGrid',
-        data: sharedConfig
-    });
-    zingchart.render({
-        id: 'pieGrid',
-        data: pieConfig
-    });
-    zingchart.bind('sharedGrid', 'mouseover', onMouseoverChart);
-    fetchJSONFile('assets/sample_data.json', onSuccessCb);
+    fetchJSONFile('assets/springfield_converted.json', onSuccessCb);
 }
 
 document.onload = doMain();
