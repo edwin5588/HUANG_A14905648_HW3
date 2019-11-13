@@ -20,8 +20,7 @@ var area_chart = {
     crosshairs: [true],
     shared: false,
     positioner: function () {
-    return { x: 80, y: 50 };},
-    followPointer: true
+    return { x: 80, y: 50 };}
   },
 
 
@@ -257,21 +256,32 @@ mouse/touch event handler to bind the charts together.
   document.getElementById('shared_container').addEventListener(
     eventType,
     function (e) {
-      var chart, point, i, event;
-      const container = this;
-      const charts = Highcharts.charts.slice();
-      const chartIndex = charts.findIndex(chart => chart.renderTo === container);
+      var chart,
+        point,
+        i,
+        event;
 
       for (i = 0; i < Highcharts.charts.length; i = i + 1) {
         chart = Highcharts.charts[i];
-        // Find coordinates within the chart
-        event = chart.pointer.normalize(e);
-        // Get the hovered point
-        point = chart.series[0].searchPoint(event, true);
-
-        if (point) {
-          point.highlight(e);
-        }
+                var points = [];
+                // Find coordinates within the chart
+                event = chart.pointer.normalize(e);
+                // Get the hovered point
+                for(var j=0; j<chart.series.length; j++) {
+                   point = chart.series[j].searchPoint(event, true);
+                   points.push(point);
+                }
+                if (points) {
+                  if (points.length == 1) {
+                    points.map(function(elm) {
+                      elm.highlight(event);
+                    });
+                  } else {
+                    points.map(function(elm) {
+                      elm.series.chart.xAxis[0].drawCrosshair(event, elm);
+                    });
+                  }
+                }
       }
     }
   );
