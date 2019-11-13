@@ -13,9 +13,18 @@ var area_chart = {
   },
 
   xAxis: {
-    type: "datetime",
-    crosshair: true
+    type: "datetime"
   },
+
+  tooltip: {
+    crosshairs: [true],
+    shared: false,
+    positioner: function () {
+    return { x: 80, y: 50 };},
+    followPointer: true
+  },
+
+
   yAxis: {
     title: {
       text: 'MW'
@@ -26,9 +35,8 @@ var area_chart = {
       }
     }
   },
-  tooltip: {
-    split: true,
-  },
+
+
   plotOptions: {
     area: {
       stacking: 'normal',
@@ -200,16 +208,6 @@ function onSuccessCb(jsonData) {
 
 
     //pushing data onto the charts
-
-
-    zingchart.exec('sharedGrid', 'setseriesdata', {
-      graphid: 1,
-      data : priceData
-    });
-    zingchart.exec('sharedGrid', 'setseriesdata', {
-      graphid: 2,
-      data : tempData
-    });
     renderPieChart(0);
 }
 
@@ -242,3 +240,47 @@ function doMain() {
 }
 
 document.onload = doMain();
+
+/*
+The purpose of this demo is to demonstrate how multiple charts on the same page
+can be linked through DOM and Highcharts events and API methods. It takes a
+standard Highcharts config with a small variation for each data set, and a
+mouse/touch event handler to bind the charts together.
+*/
+
+
+/**
+ * In order to synchronize tooltips and crosshairs, override the
+ * built-in events with handlers defined on the parent element.
+ */
+['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
+  document.getElementById('shared_container').addEventListener(
+    eventType,
+    function (e) {
+      var chart, point, i, event;
+      const container = this;
+      const charts = Highcharts.charts.slice();
+      const chartIndex = charts.findIndex(chart => chart.renderTo === container);
+
+      for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+        chart = Highcharts.charts[i];
+        // Find coordinates within the chart
+        event = chart.pointer.normalize(e);
+        // Get the hovered point
+        point = chart.series[0].searchPoint(event, true);
+
+        if (point) {
+          point.highlight(e);
+        }
+      }
+    }
+  );
+});
+
+/**
+ * Override the reset function, we don't need to hide the tooltips and
+ * crosshairs.
+ */
+Highcharts.Pointer.prototype.reset = function () {
+  return undefined;
+};
