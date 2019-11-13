@@ -2,25 +2,23 @@
 
 const JSONFileName = 'assets/springfield_converted.json';
 
+
+
 var area_chart = {
   chart: {
     type: 'area'
   },
   title: {
-    text: 'Historic and Estimated Worldwide Population Growth by Region'
+    text: "<strong>Generation</strong> MW"
   },
-  subtitle: {
-    text: 'Source: Wikipedia.org'
-  },
+
   xAxis: {
-    tickmarkPlacement: 'on',
-    title: {
-      enabled: false
-    }
+    type: "datetime",
+    crosshair: true
   },
   yAxis: {
     title: {
-      text: 'Billions'
+      text: 'MW'
     },
     labels: {
       formatter: function () {
@@ -30,7 +28,6 @@ var area_chart = {
   },
   tooltip: {
     split: true,
-    valueSuffix: ' millions'
   },
   plotOptions: {
     area: {
@@ -46,6 +43,57 @@ var area_chart = {
   series: []
 };
 
+var price_chart = {
+  title: {
+        text: 'Price'
+    },
+
+    xAxis: {
+      type: "datetime",
+      crosshair: true
+
+    },
+    yAxis: {
+        title: {
+            text: 'Number of Employees'
+        }
+    },
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+            pointStart: 2010
+        }
+    }
+};
+
+var temp_chart = {
+  title: {
+        text: 'temperature'
+    },
+
+    xAxis: {
+      type: "datetime",
+      crosshair: true
+
+    },
+    yAxis: {
+        title: {
+            text: 'Number of Employees'
+        }
+    },
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+            pointStart: 2010
+        }
+    }
+};
 
 // global data-structure to hold the energy breakup
 var globalEnergyData = {
@@ -101,36 +149,58 @@ function onSuccessCb(jsonData) {
     }).map(function(elm) {
         return {
           name: elm['id'],
-          data: elm['history']['data']
+          data: elm['history']['data'].filter(function(value, index, array) {
+                return index % 6 == 0;
+            }),
+          pointStart: elm['history']['start']*1000,
+          pointInterval: 1800000
         };
     });
 
     console.debug("this is the energyData")
     console.debug(energyData);
     updateGlobalEnergyData(energyData);
+    area_chart.series = energyData;
+    Highcharts.chart('energy_graph', area_chart);
+
 
 
     var priceData = jsonData.filter(function(elm) {
         return elm['type'] === 'price';
     }).map(function(elm) {
         return {
-          values: elm['history']['data'],
-          text: elm['id']
+          data: elm['history']['data'],
+          name: elm['id'],
+          pointStart: elm['history']['start'] * 1000,
+          pointInterval: 1800000
         };
     });
+
+    console.debug("this is the priceData");
+    console.debug(priceData);
+    price_chart.series = priceData;
+    Highcharts.chart('price_graph', price_chart);
+
+
     var tempData = jsonData.filter(function(elm) {
         return elm['type'] === 'temperature';
     }).map(function(elm) {
         return {
-          values: elm['history']['data'],
-          text: elm['id']
+          data: elm['history']['data'],
+          name: elm['id'],
+          pointStart: elm['history']['start'] * 1000,
+          pointInterval: 1800000
         };
     });
 
+    console.debug("this is the tempData");
+    console.debug(tempData);
+    temp_chart.series = tempData;
+    Highcharts.chart('temp_graph', temp_chart);
+
 
     //pushing data onto the charts
-    area_chart.series = energyData;
-    Highcharts.chart('container', area_chart)
+
 
     zingchart.exec('sharedGrid', 'setseriesdata', {
       graphid: 1,
