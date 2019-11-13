@@ -23,6 +23,10 @@ var area_chart = {
     return { x: 80, y: 50 };}
   },
 
+  legend:{
+    enabled: false
+  },
+
 
   yAxis: {
     title: {
@@ -55,6 +59,11 @@ var price_chart = {
         text: 'Price'
     },
 
+
+    legend:{
+      enabled: false
+    },
+
     xAxis: {
       type: "datetime",
       crosshair: true
@@ -65,7 +74,12 @@ var price_chart = {
             text: 'Number of Employees'
         }
     },
-
+    tooltip: {
+      crosshairs: [true],
+      shared: false,
+      positioner: function () {
+      return { x: 80, y: 50 };}
+    },
     plotOptions: {
         series: {
             label: {
@@ -81,6 +95,11 @@ var temp_chart = {
         text: 'temperature'
     },
 
+    legend:{
+      enabled: false
+    },
+
+
     xAxis: {
       type: "datetime",
       crosshair: true
@@ -92,6 +111,15 @@ var temp_chart = {
         }
     },
 
+
+    tooltip: {
+      crosshairs: [true],
+      shared: false,
+      positioner: function () {
+      return { x: 80, y: 50 };}
+    },
+
+
     plotOptions: {
         series: {
             label: {
@@ -100,6 +128,32 @@ var temp_chart = {
             pointStart: 2010
         }
     }
+};
+
+
+var pie_chart = {
+  chart: {
+    type: 'pie'
+  },
+
+
+  plotOptions: {
+    pie: {
+        shadow: false
+    }
+  },
+
+  series: [
+    {name: 'Browsers',
+                data: [["Firefox",6],["MSIE",4],["Chrome",7]],
+                size: '60%',
+                innerSize: '20%',
+                showInLegend:true,
+                dataLabels: {
+                    enabled: false}
+                  }
+  ]
+
 };
 
 // global data-structure to hold the energy breakup
@@ -129,15 +183,18 @@ function onMouseoverChart(e) {
   }
 }
 
+
 // the nodeId is basically the x-axis value
 // the actual breakup is retrieved from the global data-structure
 function renderPieChart(nodeId) {
-  var pieDataSet = globalEnergyData['keys'].map(function(elm, idx) {
+  var pieDataSet = globalEnergyData['name'].map(function(elm, idx) {
     return {
-      text: elm.split('.')[elm.split('.').length - 1],
-      values: [globalEnergyData['data'][nodeId][idx]]
+      name: elm.split('.')[elm.split('.').length - 1],
+      data: [globalEnergyData['data'][nodeId][idx]]
     }
   });
+
+
   // console.log(pieDataSet);
   zingchart.exec('pieGrid', 'setseriesdata', {
     data : pieDataSet
@@ -205,10 +262,20 @@ function onSuccessCb(jsonData) {
     temp_chart.series = tempData;
     Highcharts.chart('temp_graph', temp_chart);
 
+    var pieDataSet = globalEnergyData['name'].map(function(elm, idx) {
+      return {
+        name: elm.split('.')[elm.split('.').length - 1],
+        data: [globalEnergyData['data'][nodeId][idx]]
+      }
+
+      pie_chart.series = pieDataSet;
+      Highcharts.chart('pie_graph', pie_chart);
+
+
 
     //pushing data onto the charts
     renderPieChart(0);
-}
+}02
 
 // Utility function to fetch any file from the server
 function fetchJSONFile(filePath, callbackFunc) {
@@ -273,9 +340,7 @@ mouse/touch event handler to bind the charts together.
                 }
                 if (points) {
                   if (points.length == 1) {
-                    points.map(function(elm) {
-                      elm.highlight(event);
-                    });
+                    points[0].highlight(event);
                   } else {
                     points.map(function(elm) {
                       elm.series.chart.xAxis[0].drawCrosshair(event, elm);

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta charset="utf-8">
 <html>
   <head>
     <!-- Internal stylesheet import -->
@@ -27,21 +28,45 @@
     <!-- Chart Placement Table -->
     <table class="simpleTable greaterArea">
       <tr>
-        <td id="energy_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></td>
-        <td id="legendGrid">The Legend table goes here!</td>
+        <td rowspan="1" id="energy_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></td>
+        <td rowspan="2" id="legendGrid">The Legend table goes here!</td>
+      </tr>
+
+
+
+
+      <tr>
+        <td rowspan="1" id="price_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></td>
       </tr>
 
       <tr>
-        <td id="price_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></td>
-      </tr>
-
-      <tr>
-        <td id="temp_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></td>
+        <td rowspan="1" id="temp_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></td>
+        <td rowspan="2" id="pie_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></td>
       </tr>
 
     </table>
   </div>
 
+
+
+    <!--testing table -->
+  <table style="width:100%">
+ <tr>
+   <th>Firstname</th>
+   <th>Lastname</th>
+   <th>Age</th>
+ </tr>
+ <tr>
+   <td>Jill</td>
+   <td>Smith</td>
+   <td>50</td>
+ </tr>
+ <tr>
+   <td>Eve</td>
+   <td>Jackson</td>
+   <td>94</td>
+ </tr>
+</table>
     <!-- Internal JS Import -->
     <script src="main.js"></script>
   </body>
