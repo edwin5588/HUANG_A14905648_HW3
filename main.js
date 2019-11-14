@@ -1,8 +1,22 @@
 'use strict';
 
 const JSONFileName = 'assets/springfield_converted.json';
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
 
 
+
+function formatAMPM(date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
+}
 
 var area_chart = {
   chart: {
@@ -19,6 +33,8 @@ var area_chart = {
   },
 
   tooltip: {
+    followPointer: false,
+
     positioner: function () {
         return {
             // right aligned
@@ -26,13 +42,21 @@ var area_chart = {
             y: 10 // align to title
         };
     },
-    borderWidth: 0,
+    borderWidth: 1,
     backgroundColor: 'none',
-    pointFormat: '{point.x}' + '{point.series.name}' + '{point.y}' + " MW",
+    formatter: function(){
+
+      var date = new Date(this.x);
+      var day = date.getDate();
+      var month = monthNames[date.getMonth()]
+      var ampm = formatAMPM(date);
+      return day + " " + month + ", " + ampm + "   "
+    },
     headerFormat: '',
     shadow: false,
     style: {
-        fontSize: '18px'
+        fontSize: '18px',
+        color: '#333'
     }
 },
 
@@ -287,7 +311,7 @@ function onSuccessCb(jsonData) {
         return elm['type'] === 'power' && !(elm['id'] === "Springfield.fuel_tech.rooftop_solar.power");
     }).map(function(elm) {
         return {
-          name: elm['id'],
+          name: elm['fuel_tech'],
           data: elm['history']['data'].filter(function(value, index, array) {
                 return index % 6 == 0;
             }),
