@@ -23,3 +23,7 @@
 .pageLogo {
     height: 75px;
 }
+
+.table{
+  border-collapse: collapse;
+}

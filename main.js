@@ -13,16 +13,28 @@ var area_chart = {
   },
 
   xAxis: {
-    type: "datetime"
+    type: "datetime",
+    crosshair:true
 
   },
 
   tooltip: {
-    crosshairs: [true],
-    shared: false,
     positioner: function () {
-    return { x: 80, y: 50 };}
-  },
+        return {
+            // right aligned
+            x: this.chart.chartWidth - this.label.width,
+            y: 10 // align to title
+        };
+    },
+    borderWidth: 0,
+    backgroundColor: 'none',
+    pointFormat: '{point.series.name} ' + '{point.y}' + " MW",
+    headerFormat: '',
+    shadow: false,
+    style: {
+        fontSize: '18px'
+    }
+},
 
   legend:{
     enabled: false
@@ -67,7 +79,7 @@ var price_chart = {
 
     xAxis: {
       type: "datetime",
-      crosshair: true
+      crosshair:true
 
     },
     yAxis: {
@@ -75,12 +87,27 @@ var price_chart = {
             text: 'Number of Employees'
         }
     },
+
     tooltip: {
-      crosshairs: [true],
-      shared: false,
       positioner: function () {
-      return { x: 80, y: 50 };}
-    },
+          return {
+              // right aligned
+              x: this.chart.chartWidth - this.label.width,
+              y: 10 // align to title
+          };
+      },
+      borderWidth: 0,
+      backgroundColor: 'none',
+      pointFormat: '{point.series.name} ' + '{point.y}' + " MW",
+      headerFormat: '',
+      shadow: false,
+      style: {
+          fontSize: '18px'
+      }
+  },
+
+
+
     plotOptions: {
         series: {
             label: {
@@ -100,26 +127,35 @@ var temp_chart = {
       enabled: false
     },
 
+    tooltip: {
+      positioner: function () {
+          return {
+              // right aligned
+              x: this.chart.chartWidth - this.label.width,
+              y: 10 // align to title
+          };
+      },
+      borderWidth: 0,
+      backgroundColor: 'none',
+      pointFormat: '{point.series.name} ' + '{point.y}' + " MW",
+      headerFormat: '',
+      shadow: false,
+      style: {
+          fontSize: '18px'
+      }
+  },
+
 
     xAxis: {
       type: "datetime",
-      crosshair: true
+      crosshair:true
 
     },
     yAxis: {
         title: {
-            text: 'Number of Employees'
+            text: ''
         }
     },
-
-
-    tooltip: {
-      crosshairs: [true],
-      shared: false,
-      positioner: function () {
-      return { x: 80, y: 50 };}
-    },
-
 
     plotOptions: {
         series: {
@@ -136,6 +172,48 @@ var pie_chart = {
   chart: {
     type: 'pie'
   },
+
+
+  exporting: {
+        buttons: [{
+          text: 'switch between pie/bar',
+          onclick: function () {
+                    var chartType = this.options.chart.type;
+
+                    this.update({
+                        chart: {
+                            type: chartType === 'bar' ? 'pie' : 'bar'
+                        },
+
+                        plotOptions: {
+                          bar: {
+                            animation: false
+                          }
+                        },
+
+                        legend: {
+                          enabled: false
+                        }
+
+
+                    })
+                },
+          theme: {
+                'stroke-width': 1,
+                stroke: 'silver',
+                r: 0,
+                states: {
+                    hover: {
+                        fill: '#a4edba'
+                    },
+                    select: {
+                        stroke: '#039',
+                        fill: '#a4edba'
+                    }
+                }
+            }
+        }]
+    },
 
 
   plotOptions: {
@@ -331,7 +409,6 @@ mouse/touch event handler to bind the charts together.
                   } else {
                     points.map(function(elm) {
                       elm.series.chart.xAxis[0].drawCrosshair(event, elm);
-                      renderPieChart(chart.series[0].data.indexOf(points[0]));
                     });
                   }
                 }
