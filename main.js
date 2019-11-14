@@ -173,7 +173,7 @@ var temp_chart = {
         var month = monthNames[date.getMonth()]
         var ampm = formatAMPM(date);
 
-        return day + " " + month + ", " + ampm + "|" + "$" + this.point.y + " USD/MWh"
+        return day + " " + month + ", " + ampm + "|" + this.point.y + " degrees F"
       },
       headerFormat: '',
       shadow: false,
