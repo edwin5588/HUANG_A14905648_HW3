@@ -108,7 +108,6 @@ var price_chart = {
             text: ''
         }
     },
-
     tooltip: {
       positioner: function () {
           return {
