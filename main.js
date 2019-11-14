@@ -31,6 +31,12 @@ var area_chart = {
     crosshair:true
 
   },
+  yAxis: {
+      title: {
+          text: ''
+      }
+  },
+
 
   tooltip: {
     followPointer: false,
@@ -50,7 +56,9 @@ var area_chart = {
       var day = date.getDate();
       var month = monthNames[date.getMonth()]
       var ampm = formatAMPM(date);
-      return day + " " + month + ", " + ampm + "   "
+      var name = this.point.series.name;
+
+      return day + " " + month + ", " + ampm + "|" + name + "--" + this.point.y + " MW"
     },
     headerFormat: '',
     shadow: false,
@@ -64,17 +72,6 @@ var area_chart = {
     enabled: false
   },
 
-
-  yAxis: {
-    title: {
-      text: 'MW'
-    },
-    labels: {
-      formatter: function () {
-        return this.value;
-      }
-    }
-  },
 
 
   plotOptions: {
@@ -108,7 +105,7 @@ var price_chart = {
     },
     yAxis: {
         title: {
-            text: 'Number of Employees'
+            text: ''
         }
     },
 
@@ -122,7 +119,15 @@ var price_chart = {
       },
       borderWidth: 0,
       backgroundColor: 'none',
-      pointFormat: '{point.series.name} ' + '{point.y}' + " MW",
+      formatter: function(){
+
+        var date = new Date(this.x);
+        var day = date.getDate();
+        var month = monthNames[date.getMonth()]
+        var ampm = formatAMPM(date);
+
+        return day + " " + month + ", " + ampm + "|" + "$" + this.point.y + " USD/MWh"
+      },
       headerFormat: '',
       shadow: false,
       style: {
@@ -161,7 +166,15 @@ var temp_chart = {
       },
       borderWidth: 0,
       backgroundColor: 'none',
-      pointFormat: '{point.series.name} ' + '{point.y}' + " MW",
+      formatter: function(){
+
+        var date = new Date(this.x);
+        var day = date.getDate();
+        var month = monthNames[date.getMonth()]
+        var ampm = formatAMPM(date);
+
+        return day + " " + month + ", " + ampm + "|" + "$" + this.point.y + " USD/MWh"
+      },
       headerFormat: '',
       shadow: false,
       style: {
@@ -283,7 +296,7 @@ function onMouseoverChart(e) {
 function renderPieChart(nodeId) {
   var pieDataSet = globalEnergyData['name'].map(function(elm, idx) {
     return {
-      name: elm.split('.')[elm.split('.').length-2],
+      name: elm.split('.')[elm.split('.').length-1],
       y: globalEnergyData['data'][nodeId][idx]
     }
   });
@@ -315,7 +328,7 @@ function onSuccessCb(jsonData) {
           data: elm['history']['data'].filter(function(value, index, array) {
                 return index % 6 == 0;
             }),
-          pointStart: elm['history']['start']*1000,
+          pointStart: 1571578200*1000,
           pointInterval: 1800000
         };
     });
@@ -334,7 +347,7 @@ function onSuccessCb(jsonData) {
         return {
           data: elm['history']['data'],
           name: elm['id'],
-          pointStart: elm['history']['start'] * 1000,
+          pointStart: 1571578200*1000,
           pointInterval: 1800000
         };
     });
@@ -350,7 +363,7 @@ function onSuccessCb(jsonData) {
         return {
           data: elm['history']['data'],
           name: elm['id'],
-          pointStart: elm['history']['start'] * 1000,
+          pointStart: 1571578200*1000,
           pointInterval: 1800000
         };
     });
