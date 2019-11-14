@@ -14,6 +14,7 @@ var area_chart = {
 
   xAxis: {
     type: "datetime"
+
   },
 
   tooltip: {
@@ -34,7 +35,7 @@ var area_chart = {
     },
     labels: {
       formatter: function () {
-        return this.value / 1000;
+        return this.value;
       }
     }
   },
@@ -139,21 +140,12 @@ var pie_chart = {
 
   plotOptions: {
     pie: {
-        shadow: false
+        shadow: false,
+        animation: false
     }
   },
 
-  series: [
-    {name: 'Browsers',
-                data: [["Firefox",6],["MSIE",4],["Chrome",7]],
-                size: '60%',
-                innerSize: '20%',
-                showInLegend:true,
-                dataLabels: {
-                    enabled: false}
-                  }
-  ]
-
+  series: []
 };
 
 // global data-structure to hold the energy breakup
@@ -169,7 +161,7 @@ function updateGlobalEnergyData(data) {
     var energyBreakup = data.map(elm => {return elm['data'][idx]});
     globalEnergyData['data'].push(energyBreakup);
   }
-  globalEnergyData['keys'] = data.map(elm => elm['name']);
+  globalEnergyData['name'] = data.map(elm => elm['name']);
 }
 
 // this method reacts only onmouseover on any of the nodes in the shared graphs
@@ -189,16 +181,21 @@ function onMouseoverChart(e) {
 function renderPieChart(nodeId) {
   var pieDataSet = globalEnergyData['name'].map(function(elm, idx) {
     return {
-      name: elm.split('.')[elm.split('.').length - 1],
-      data: [globalEnergyData['data'][nodeId][idx]]
+      name: elm.split('.')[elm.split('.').length-2],
+      y: globalEnergyData['data'][nodeId][idx]
     }
   });
 
 
-  // console.log(pieDataSet);
-  zingchart.exec('pieGrid', 'setseriesdata', {
-    data : pieDataSet
-  });
+
+  var pieChartData = [{
+    name: 'Powers',
+    data: pieDataSet
+  }]
+
+
+  pie_chart.series = pieChartData;
+  Highcharts.chart('pie_graph', pie_chart);
 }
 
 
@@ -221,9 +218,9 @@ function onSuccessCb(jsonData) {
         };
     });
 
-    console.debug("this is the energyData")
-    console.debug(energyData);
+
     updateGlobalEnergyData(energyData);
+
     area_chart.series = energyData;
     Highcharts.chart('energy_graph', area_chart);
 
@@ -240,8 +237,7 @@ function onSuccessCb(jsonData) {
         };
     });
 
-    console.debug("this is the priceData");
-    console.debug(priceData);
+
     price_chart.series = priceData;
     Highcharts.chart('price_graph', price_chart);
 
@@ -257,25 +253,14 @@ function onSuccessCb(jsonData) {
         };
     });
 
-    console.debug("this is the tempData");
-    console.debug(tempData);
+
     temp_chart.series = tempData;
     Highcharts.chart('temp_graph', temp_chart);
-
-    var pieDataSet = globalEnergyData['name'].map(function(elm, idx) {
-      return {
-        name: elm.split('.')[elm.split('.').length - 1],
-        data: [globalEnergyData['data'][nodeId][idx]]
-      }
-
-      pie_chart.series = pieDataSet;
-      Highcharts.chart('pie_graph', pie_chart);
 
 
 
     //pushing data onto the charts
-    renderPieChart(0);
-}02
+}
 
 // Utility function to fetch any file from the server
 function fetchJSONFile(filePath, callbackFunc) {
@@ -338,12 +323,15 @@ mouse/touch event handler to bind the charts together.
                    point = chart.series[j].searchPoint(event, true);
                    points.push(point);
                 }
+
                 if (points) {
                   if (points.length == 1) {
                     points[0].highlight(event);
+                    renderPieChart(chart.series[0].data.indexOf(points[0]));
                   } else {
                     points.map(function(elm) {
                       elm.series.chart.xAxis[0].drawCrosshair(event, elm);
+                      renderPieChart(chart.series[0].data.indexOf(points[0]));
                     });
                   }
                 }
