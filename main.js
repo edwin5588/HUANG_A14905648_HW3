@@ -28,7 +28,7 @@ var area_chart = {
     },
     borderWidth: 0,
     backgroundColor: 'none',
-    pointFormat: '{point.series.name} ' + '{point.y}' + " MW",
+    pointFormat: '{point.x}' + '{point.series.name}' + '{point.y}' + " MW",
     headerFormat: '',
     shadow: false,
     style: {
