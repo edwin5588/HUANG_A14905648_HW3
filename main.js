@@ -208,7 +208,9 @@ var pie_chart = {
   chart: {
     type: 'pie'
   },
-
+  title: {
+        text: ' '
+    },
 
   exporting: {
         buttons: [{
